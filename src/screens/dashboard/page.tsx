@@ -11,6 +11,7 @@ interface Quotation {
   date: string;
   items: { qty: number; rate: number }[];
   discount: number;
+  amount: number;
 }
 
 export default function DashboardScreen() {
@@ -49,16 +50,19 @@ export default function DashboardScreen() {
         <p className="text-sm text-white">{formattedDate}</p>
       </span>
 
+      {/* Cards */}
       <span className="w-full flex items-center justify-start gap-6">
         <TotalItem />
         <TotalQuotations />
       </span>
 
+      {/* Recent Invoices */}
       <span className="max-h-[600px] h-full w-full overflow-y-auto bg-cardBg rounded-lg">
         <p className="text-lg text-white px-[50px] py-[20px]">
           Recent Invoices
         </p>
 
+        {/* Table Header */}
         <div className="flex items-center justify-between h-[70px] w-full bg-BgColor px-[50px]">
           <p className="text-white text-xs">Invoice Id</p>
           <p className="text-white text-xs">Date</p>
@@ -66,15 +70,13 @@ export default function DashboardScreen() {
           <p className="text-white text-xs">Amount</p>
         </div>
 
+        {/* Table Body */}
         <div className="flex flex-col gap-4 px-[50px] py-[20px]">
           {quotations.length === 0 ? (
             <p className="text-gray-400 text-sm">No invoices yet.</p>
           ) : (
             quotations.map((q) => {
-              const amount =
-                q.items.reduce((sum, i) => sum + i.qty * i.rate, 0) -
-                q.discount;
-
+              const amount = q.amount;
               return (
                 <RecentInvoice
                   key={q._id}

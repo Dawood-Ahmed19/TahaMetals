@@ -24,8 +24,42 @@ const QuotationTable: React.FC<{ onSaveSuccess?: () => void }> = ({
   );
   const [discount, setDiscount] = useState<number>(0);
 
+  // const saveQuotation = async () => {
+  //   const validRows = rows.filter((r) => r.item && r.qty);
+
+  //   if (validRows.length === 0) {
+  //     alert("Please add at least one item before saving.");
+  //     return;
+  //   }
+
+  //   try {
+  //     const res = await fetch("/api/quotations", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ items: validRows, discount }),
+  //     });
+
+  //     const data = await res.json();
+
+  //     if (!res.ok) {
+  //       throw new Error(data?.error || "Failed to save quotation");
+  //     }
+
+  //     alert("Quotation saved and inventory updated!");
+  //   } catch (err) {
+  //     console.error("Error in saveQuotation:", err);
+  //     alert("Error saving quotation");
+  //   }
+
+  //   if (onSaveSuccess) {
+  //     onSaveSuccess();
+  //   } else {
+  //     window.location.reload();
+  //   }
+  // };
+
   const saveQuotation = async () => {
-    const validRows = rows.filter((r) => r.item && r.qty);
+    const validRows = rows.filter((r) => r.item && r.qty && r.rate);
 
     if (validRows.length === 0) {
       alert("Please add at least one item before saving.");
@@ -36,25 +70,33 @@ const QuotationTable: React.FC<{ onSaveSuccess?: () => void }> = ({
       const res = await fetch("/api/quotations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: validRows, discount }),
+        body: JSON.stringify({
+          items: validRows.map((r) => ({
+            item: r.item,
+            qty: Number(r.qty),
+            weight: Number(r.weight),
+            rate: Number(r.rate), // ✅ include rate
+          })),
+          discount,
+        }),
       });
 
       const data = await res.json();
 
-      if (!res.ok) {
+      if (!res.ok || !data.success) {
         throw new Error(data?.error || "Failed to save quotation");
       }
 
-      alert("Quotation saved and inventory updated!");
-    } catch (err) {
-      console.error("Error in saveQuotation:", err);
-      alert("Error saving quotation");
-    }
+      alert("✅ Quotation saved and inventory updated!");
 
-    if (onSaveSuccess) {
-      onSaveSuccess();
-    } else {
-      window.location.reload();
+      if (onSaveSuccess) {
+        onSaveSuccess();
+      } else {
+        window.location.reload();
+      }
+    } catch (err: any) {
+      console.error("Error in saveQuotation:", err.message);
+      alert("❌ Error saving quotation: " + err.message);
     }
   };
 
