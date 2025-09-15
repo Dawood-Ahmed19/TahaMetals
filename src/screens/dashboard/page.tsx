@@ -4,7 +4,7 @@ import TotalItem from "@/components/totalitem/page";
 import TotalQuotations from "@/components/totalQuot/page";
 import ShowInvoices from "@/components/ShowInvoices/page";
 import ShowItem from "@/components/ShowItem/page";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Loader from "@/components/Loader/page";
 
 export default function DashboardScreen() {
@@ -14,6 +14,7 @@ export default function DashboardScreen() {
     "quotations"
   );
   const [loading, setLoading] = useState(false);
+  const [quotationCount, setQuotationCount] = useState(0);
 
   const handleTabSwitch = (tab: "items" | "quotations") => {
     if (tab === activeTab) return;
@@ -31,6 +32,22 @@ export default function DashboardScreen() {
     month: "long",
     day: "numeric",
   });
+
+  useEffect(() => {
+    const fetchQuotations = async () => {
+      try {
+        const res = await fetch("/api/quotations");
+        const data = await res.json();
+        if (data.success) {
+          setQuotationCount(data.count);
+        }
+      } catch (err) {
+        console.error("Error fetching quotations:", err);
+      }
+    };
+
+    fetchQuotations();
+  }, []);
 
   return (
     <div className="px-[75px] py-[35px] h-full flex flex-col items-center gap-[50px]">
@@ -52,7 +69,7 @@ export default function DashboardScreen() {
           className="hover:cursor-pointer"
           onClick={() => handleTabSwitch("quotations")}
         >
-          <TotalQuotations />
+          <TotalQuotations count={quotationCount} />
         </button>
       </span>
 

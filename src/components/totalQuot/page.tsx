@@ -2,7 +2,11 @@
 import { faNoteSticky } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const TotalQuotations = () => {
+interface TotalQuotationProps {
+  count: number;
+}
+
+const TotalQuotations = ({ count }: TotalQuotationProps) => {
   return (
     <div className="max-w-[250px] max-h-[170px] bg-cardBg px-[38px] py-[13px] flex flex-col items-center gap-4 rounded-xl">
       <span className="flex items-center gap-2">
@@ -17,7 +21,7 @@ const TotalQuotations = () => {
           <span className="font-bold">Quotations</span>
         </span>
       </span>
-      <span className="font-bold text-white text-sm">100</span>
+      <span className="font-bold text-white text-sm">{count}</span>
     </div>
   );
 };

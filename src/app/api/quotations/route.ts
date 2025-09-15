@@ -179,19 +179,35 @@ export async function POST(req: Request) {
   }
 }
 
+// export async function GET() {
+//   try {
+//     // Sort by balance first (descending), then by date (newest first)
+//     const quotations = await quotationDb
+//       .find({})
+//       .sort({ balance: -1, date: -1 })
+//       .limit(20);
+
+//     return NextResponse.json({ success: true, quotations });
+//   } catch (err) {
+//     console.error("Error fetching quotations:", err);
+//     return NextResponse.json(
+//       { success: false, quotations: [] },
+//       { status: 500 }
+//     );
+//   }
+// }
+
+// src/app/api/quotations/route.ts
 export async function GET() {
   try {
-    // Sort by balance first (descending), then by date (newest first)
-    const quotations = await quotationDb
-      .find({})
-      .sort({ balance: -1, date: -1 })
-      .limit(20);
+    const quotations = await quotationDb.find({}).sort({ date: -1 }).limit(10);
+    const count = await quotationDb.count({});
 
-    return NextResponse.json({ success: true, quotations });
+    return NextResponse.json({ success: true, quotations, count });
   } catch (err) {
     console.error("Error fetching quotations:", err);
     return NextResponse.json(
-      { success: false, quotations: [] },
+      { success: false, quotations: [], count: 0 },
       { status: 500 }
     );
   }
