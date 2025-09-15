@@ -5,6 +5,8 @@ interface RecentInvoiceProps {
   date: string;
   amount: number;
   discount: number;
+  received: number;
+  balance: number;
 }
 
 const RecentInvoice = ({
@@ -12,6 +14,8 @@ const RecentInvoice = ({
   date,
   amount,
   discount,
+  received,
+  balance,
 }: RecentInvoiceProps) => {
   return (
     <>
@@ -32,6 +36,12 @@ const RecentInvoice = ({
 
         <span>
           <p className="text-white text-xs">{amount}Rs</p>
+        </span>
+        <span>
+          <p className="text-white text-xs">{received}Rs</p>
+        </span>
+        <span>
+          <p className="text-white text-xs">{balance}Rs</p>
         </span>
       </div>
       <hr className="text-white opacity-20" />
