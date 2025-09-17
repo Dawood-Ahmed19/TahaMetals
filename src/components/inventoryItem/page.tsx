@@ -40,7 +40,7 @@ export default function InventoryItem({
 
   return (
     <div
-      className={`${inventoryGridCols} px-[120px] py-[20px] border-b border-gray-800 text-xs items-center 
+      className={`${inventoryGridCols} px-[120px] py-[20px] border-b border-gray-800 text-xs items-center
   ${quantity === 0 ? "bg-gray-700 text-gray-400" : "bg-fieldBg text-white"}`}
     >
       <p>{name}</p>
@@ -68,7 +68,11 @@ export default function InventoryItem({
           <FontAwesomeIcon icon={faPen} />
         </button>
         <button
-          onClick={() => onDelete(_id)}
+          type="button" // ✅ prevent unintended form submit
+          onClick={() => {
+            console.log("Delete clicked:", _id);
+            onDelete(_id);
+          }}
           className="hover:cursor-pointer"
           disabled={quantity === 0}
         >

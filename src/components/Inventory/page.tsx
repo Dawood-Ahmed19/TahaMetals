@@ -44,20 +44,19 @@ export default function InventoryCard() {
   }, []);
 
   const handleDelete = async (id: string) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this item?"
-    );
-    if (!confirmDelete) return;
+    console.log("handleDelete called with:", id);
+    if (!window.confirm("Are you sure you want to delete this item?")) return;
 
     try {
-      const res = await fetch(`/api/items/${id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(`/api/items/${id}`, { method: "DELETE" });
+      const data = await res.json();
 
-      if (res.ok) {
+      console.log("DELETE response:", res.status, data);
+
+      if (res.ok && data?.success) {
         setItems((prev) => prev.filter((item) => item._id !== id));
       } else {
-        console.error("Failed to delete item");
+        alert("❌ Failed to delete: " + (data?.error || res.statusText));
       }
     } catch (err) {
       console.error("Error deleting item", err);

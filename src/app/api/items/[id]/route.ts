@@ -55,20 +55,22 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const numRemoved = await inventoryDb.remove({ _id: params.id }, {});
+    const { id } = params;
+    console.log("API DELETE called for:", id);
 
-    if (numRemoved === 0) {
+    const numRemoved = await inventoryDb.remove({ _id: id }, {});
+    if (numRemoved > 0) {
+      return NextResponse.json({ success: true });
+    } else {
       return NextResponse.json(
         { success: false, error: "Item not found" },
         { status: 404 }
       );
     }
-
-    return NextResponse.json({ success: true, removed: numRemoved });
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error("Error deleting item:", err);
     return NextResponse.json(
-      { success: false, error: "Failed to delete" },
+      { success: false, error: "Failed to delete item" },
       { status: 500 }
     );
   }
