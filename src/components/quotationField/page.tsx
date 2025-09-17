@@ -38,7 +38,7 @@ const QuotationTable: React.FC<{ onSaveSuccess?: () => void }> = ({
       const res = await fetch("/api/inventory");
       const data = await res.json();
       if (data.success) {
-        setInventoryItems(data.items); // save full objects
+        setInventoryItems(data.items);
       }
     };
     fetchInventory();
@@ -157,17 +157,9 @@ const QuotationTable: React.FC<{ onSaveSuccess?: () => void }> = ({
                   <input
                     type="text"
                     value={row.item}
-                    onChange={(e) => {
-                      // Remove everything that's not A-Z or space
-                      const cleanValue = e.target.value.replace(
-                        /[^A-Za-z\s]/g,
-                        ""
-                      );
-                      handleChange(i, "item", cleanValue);
-                    }}
+                    onChange={(e) => handleChange(i, "item", e.target.value)}
                     className="bg-transparent text-center w-full outline-none"
                     list="inventory-options"
-                    pattern="[A-Za-z\s]*"
                   />
 
                   <datalist id="inventory-options">

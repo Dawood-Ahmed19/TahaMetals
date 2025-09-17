@@ -165,7 +165,6 @@ const ShowInvoices = () => {
           <p className="text-gray-400 text-sm">No invoices yet.</p>
         ) : (
           quotations.map((q) => {
-            // ✅ fallback to old schema if needed
             const payments = Array.isArray(q.payments)
               ? q.payments
               : q.received
