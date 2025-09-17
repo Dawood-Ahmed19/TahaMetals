@@ -1,1 +1,1 @@
-{"quotationId":"QTN-0001","items":[{"item":"p001","qty":25,"weight":25,"rate":25}],"discount":0,"total":625,"grandTotal":625,"received":500,"balance":125,"amount":625,"date":"2025-09-17T09:38:26.361Z","_id":"X2xjuAWmJZBHNr8W"}
+{"quotationId":"QTN-0001","items":[{"item":"p001","qty":25,"weight":25,"rate":25}],"discount":0,"total":625,"grandTotal":625,"payments":[{"amount":200,"date":"2025-09-17"},{"amount":200,"date":"2025-09-17"}],"amount":625,"date":"2025-09-17T10:20:43.899Z","_id":"vhjO8KGtg4wYe815"}

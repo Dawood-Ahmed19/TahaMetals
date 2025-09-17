@@ -31,6 +31,58 @@ const QuotationTable: React.FC<{ onSaveSuccess?: () => void }> = ({
   const total = rows.reduce((acc, row) => acc + row.amount, 0);
   const grandTotal = total - discount;
   const balance = grandTotal - received;
+  // const saveQuotation = async () => {
+  //   const validRows = rows.filter((r) => r.item && r.qty && r.rate);
+
+  //   if (validRows.length === 0) {
+  //     alert("Please add at least one item before saving.");
+  //     return;
+  //   }
+
+  //   // ✅ Validation for received
+  //   if (!received || received <= 0) {
+  //     alert("Please enter a valid 'Received' amount.");
+  //     return;
+  //   }
+
+  //   try {
+  //     const res = await fetch("/api/quotations", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         items: validRows.map((r) => ({
+  //           item: r.item,
+  //           qty: Number(r.qty),
+  //           weight: Number(r.weight),
+  //           rate: Number(r.rate),
+  //         })),
+  //         discount,
+  //         received,
+  //         balance,
+  //         total,
+  //         grandTotal,
+  //       }),
+  //     });
+
+  //     const data = await res.json();
+
+  //     if (!res.ok || !data.success) {
+  //       throw new Error(data?.error || "Failed to save quotation");
+  //     }
+
+  //     alert("✅ Quotation saved and inventory updated!");
+
+  //     if (onSaveSuccess) {
+  //       onSaveSuccess();
+  //     } else {
+  //       window.location.reload();
+  //     }
+  //   } catch (err: any) {
+  //     console.error("Error in saveQuotation:", err.message);
+  //     alert("❌ Error saving quotation: " + err.message);
+  //   }
+  // };
+
   const saveQuotation = async () => {
     const validRows = rows.filter((r) => r.item && r.qty && r.rate);
 
@@ -39,9 +91,9 @@ const QuotationTable: React.FC<{ onSaveSuccess?: () => void }> = ({
       return;
     }
 
-    // ✅ Validation for received
-    if (!received || received <= 0) {
-      alert("Please enter a valid 'Received' amount.");
+    // Validate received amount
+    if (isNaN(received) || received < 0) {
+      alert("❌ Please enter a valid received amount (0 if unpaid).");
       return;
     }
 
@@ -57,10 +109,12 @@ const QuotationTable: React.FC<{ onSaveSuccess?: () => void }> = ({
             rate: Number(r.rate),
           })),
           discount,
-          received,
-          balance,
           total,
           grandTotal,
+          payments:
+            received > 0
+              ? [{ amount: received, date: new Date().toISOString() }]
+              : [],
         }),
       });
 
