@@ -224,7 +224,7 @@ const ShowInvoices = () => {
 
       {/* View Payments Modal */}
       {showPayments && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-60">
+        <div className="fixed inset-0 flex justify-center items-center">
           <div className="bg-white p-4 rounded shadow-lg w-96">
             <h2 className="text-lg font-bold mb-2">
               Payments for {showPayments.quotationId}
@@ -252,7 +252,7 @@ const ShowInvoices = () => {
 
       {/* Add Payment Modal */}
       {addPaymentFor && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-60">
+        <div className="fixed inset-0 flex justify-center items-center">
           <div className="bg-white p-4 rounded shadow-lg w-96">
             <h2 className="text-lg font-bold mb-2">
               Add Payment for {addPaymentFor.quotationId}

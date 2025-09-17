@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 type QuotationRow = {
@@ -9,6 +9,13 @@ type QuotationRow = {
   amount: number;
   uniqueKey: string;
 };
+
+interface InventoryItem {
+  name: string;
+  weight: number;
+  rate: number;
+  quantity: number;
+}
 
 const QuotationTable: React.FC<{ onSaveSuccess?: () => void }> = ({
   onSaveSuccess,
@@ -24,6 +31,18 @@ const QuotationTable: React.FC<{ onSaveSuccess?: () => void }> = ({
     }))
   );
 
+  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
+
+  useEffect(() => {
+    const fetchInventory = async () => {
+      const res = await fetch("/api/inventory");
+      const data = await res.json();
+      if (data.success) {
+        setInventoryItems(data.items); // save full objects
+      }
+    };
+    fetchInventory();
+  }, []);
   const [discount, setDiscount] = useState<number>(0);
   const [received, setReceived] = useState<number>(0);
 
@@ -31,58 +50,6 @@ const QuotationTable: React.FC<{ onSaveSuccess?: () => void }> = ({
   const total = rows.reduce((acc, row) => acc + row.amount, 0);
   const grandTotal = total - discount;
   const balance = grandTotal - received;
-  // const saveQuotation = async () => {
-  //   const validRows = rows.filter((r) => r.item && r.qty && r.rate);
-
-  //   if (validRows.length === 0) {
-  //     alert("Please add at least one item before saving.");
-  //     return;
-  //   }
-
-  //   // ✅ Validation for received
-  //   if (!received || received <= 0) {
-  //     alert("Please enter a valid 'Received' amount.");
-  //     return;
-  //   }
-
-  //   try {
-  //     const res = await fetch("/api/quotations", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({
-  //         items: validRows.map((r) => ({
-  //           item: r.item,
-  //           qty: Number(r.qty),
-  //           weight: Number(r.weight),
-  //           rate: Number(r.rate),
-  //         })),
-  //         discount,
-  //         received,
-  //         balance,
-  //         total,
-  //         grandTotal,
-  //       }),
-  //     });
-
-  //     const data = await res.json();
-
-  //     if (!res.ok || !data.success) {
-  //       throw new Error(data?.error || "Failed to save quotation");
-  //     }
-
-  //     alert("✅ Quotation saved and inventory updated!");
-
-  //     if (onSaveSuccess) {
-  //       onSaveSuccess();
-  //     } else {
-  //       window.location.reload();
-  //     }
-  //   } catch (err: any) {
-  //     console.error("Error in saveQuotation:", err.message);
-  //     alert("❌ Error saving quotation: " + err.message);
-  //   }
-  // };
-
   const saveQuotation = async () => {
     const validRows = rows.filter((r) => r.item && r.qty && r.rate);
 
@@ -190,9 +157,26 @@ const QuotationTable: React.FC<{ onSaveSuccess?: () => void }> = ({
                   <input
                     type="text"
                     value={row.item}
-                    onChange={(e) => handleChange(i, "item", e.target.value)}
+                    onChange={(e) => {
+                      // Remove everything that's not A-Z or space
+                      const cleanValue = e.target.value.replace(
+                        /[^A-Za-z\s]/g,
+                        ""
+                      );
+                      handleChange(i, "item", cleanValue);
+                    }}
                     className="bg-transparent text-center w-full outline-none"
+                    list="inventory-options"
+                    pattern="[A-Za-z\s]*"
                   />
+
+                  <datalist id="inventory-options">
+                    {inventoryItems
+                      .filter((inv) => inv.quantity > 0)
+                      .map((inv, idx) => (
+                        <option key={idx} value={inv.name} />
+                      ))}
+                  </datalist>
                 </td>
                 <td className="border border-white">
                   <input
