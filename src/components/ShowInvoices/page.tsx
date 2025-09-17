@@ -209,8 +209,13 @@ const ShowInvoices = () => {
                     View Payments
                   </button>
                   <button
-                    onClick={() => setAddPaymentFor(q)}
-                    className="text-green-400 hover:cursor-pointer"
+                    disabled={balance <= 0}
+                    onClick={() => balance > 0 && setAddPaymentFor(q)}
+                    className={`${
+                      balance <= 0
+                        ? "text-gray-500 cursor-not-allowed"
+                        : "text-green-400 hover:cursor-pointer"
+                    }`}
                   >
                     Add Payment
                   </button>

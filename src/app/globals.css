@@ -10,3 +10,26 @@
 
   --font-poppins: "Poppins", sans-serif;
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #invoice-section,
+  #invoice-section * {
+    visibility: visible;
+  }
+
+  #invoice-section {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: white;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}

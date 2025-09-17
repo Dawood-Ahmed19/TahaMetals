@@ -43,6 +43,10 @@ const QuotationTable: React.FC<{ onSaveSuccess?: () => void }> = ({
     };
     fetchInventory();
   }, []);
+
+  const handlePrint = () => {
+    window.print();
+  };
   const [discount, setDiscount] = useState<number>(0);
   const [received, setReceived] = useState<number>(0);
 
@@ -127,7 +131,10 @@ const QuotationTable: React.FC<{ onSaveSuccess?: () => void }> = ({
 
   return (
     <>
-      <div className="flex justify-center items-center max-w-[600px] max-h-[600px] h-full bg-gray-900 text-xs">
+      <div
+        id="invoice-section"
+        className="flex justify-center items-center max-w-[600px] max-h-[600px] h-full bg-gray-900 text-xs"
+      >
         <table
           className="text-white"
           style={{ width: "600px", height: "600px" }}
@@ -242,14 +249,17 @@ const QuotationTable: React.FC<{ onSaveSuccess?: () => void }> = ({
         </table>
       </div>
 
-      <span className="flex items-center gap-4">
+      <span className="no-print flex items-center gap-4">
         <button
           onClick={saveQuotation}
           className="mt-4 bg-blue-600 px-4 py-2 rounded text-white hover:cursor-pointer"
         >
           Save
         </button>
-        <button className="mt-4 bg-blue-600 px-4 py-2 rounded text-white hover:cursor-pointer">
+        <button
+          onClick={handlePrint}
+          className="mt-4 bg-blue-600 px-4 py-2 rounded text-white hover:cursor-pointer"
+        >
           Print
         </button>
       </span>
