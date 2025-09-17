@@ -1,5 +1,9 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 type QuotationRow = {
   qty: number | "";
@@ -32,28 +36,30 @@ const QuotationTable: React.FC<{ onSaveSuccess?: () => void }> = ({
   );
 
   const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
+  const [discount, setDiscount] = useState<number>(0);
+  const [received, setReceived] = useState<number>(0);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   useEffect(() => {
     const fetchInventory = async () => {
-      const res = await fetch("/api/inventory");
-      const data = await res.json();
-      if (data.success) {
-        setInventoryItems(data.items);
+      try {
+        const res = await fetch("/api/inventory");
+        const data = await res.json();
+        if (data.success) {
+          setInventoryItems(data.items || []);
+        }
+      } catch (err) {
+        console.error("Error fetching inventory:", err);
       }
     };
     fetchInventory();
   }, []);
 
-  const handlePrint = () => {
-    window.print();
-  };
-  const [discount, setDiscount] = useState<number>(0);
-  const [received, setReceived] = useState<number>(0);
-
-  // calculate totals
+  // totals
   const total = rows.reduce((acc, row) => acc + row.amount, 0);
   const grandTotal = total - discount;
   const balance = grandTotal - received;
+
   const saveQuotation = async () => {
     const validRows = rows.filter((r) => r.item && r.qty && r.rate);
 
@@ -62,7 +68,6 @@ const QuotationTable: React.FC<{ onSaveSuccess?: () => void }> = ({
       return;
     }
 
-    // Validate received amount
     if (isNaN(received) || received < 0) {
       alert("❌ Please enter a valid received amount (0 if unpaid).");
       return;
@@ -127,6 +132,119 @@ const QuotationTable: React.FC<{ onSaveSuccess?: () => void }> = ({
     newRows[index].amount = qty * rate;
 
     setRows(newRows);
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  // helper to fetch image and convert to dataURL
+  async function getImageDataUrl(url: string): Promise<string | null> {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Image fetch failed");
+      const blob = await res.blob();
+      return await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (err) {
+      console.warn("Could not load image", err);
+      return null;
+    }
+  }
+
+  // PDF generator
+  const handleDownloadPDF = async () => {
+    try {
+      setIsGeneratingPdf(true);
+
+      const doc = new jsPDF({ unit: "pt", format: "a4" });
+
+      // Try to add logo
+      const logoUrl = "/logo.png";
+      const logoDataUrl = await getImageDataUrl(logoUrl);
+      if (logoDataUrl) {
+        doc.addImage(logoDataUrl, "PNG", 40, 30, 80, 40);
+      }
+
+      // Header: two-part brand like in your UI
+      const headerX = 140;
+      doc.setFontSize(18);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(253, 186, 116); // orange
+      doc.text("Taha", headerX, 50);
+      const tahawidth = (doc as any).getTextWidth("Taha");
+      doc.setTextColor(0, 0, 0);
+      doc.text("Metals", headerX + tahawidth + 6, 50);
+
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(11);
+      doc.text("Invoice / Quotation", headerX, 68);
+
+      const today = new Date().toLocaleDateString();
+      const pageWidth =
+        typeof doc.internal.pageSize.getWidth === "function"
+          ? doc.internal.pageSize.getWidth()
+          : (doc.internal.pageSize as any).width;
+      doc.setFontSize(10);
+      doc.text(`Date: ${today}`, pageWidth - 90, 40);
+
+      // Table
+      const head = [["Qty", "Item", "Weight", "Rate", "Amount"]];
+      const body = rows
+        .filter((r) => r.item && r.qty && r.rate)
+        .map((r) => [
+          String(r.qty),
+          r.item,
+          String(r.weight),
+          String(r.rate),
+          String(r.amount),
+        ]);
+
+      const startY = 110;
+      (autoTable as any)(doc, {
+        head,
+        body,
+        startY,
+        theme: "striped",
+        styles: { fontSize: 10 },
+        headStyles: { fillColor: [45, 55, 72], textColor: 255 },
+        margin: { left: 40, right: 40 },
+      });
+
+      const finalY = (doc as any).lastAutoTable
+        ? (doc as any).lastAutoTable.finalY + 20
+        : startY + 20;
+
+      // Totals block on right
+      doc.setFontSize(11);
+      const rightX = pageWidth - 160;
+
+      // Show totals based on your current computed state
+      doc.text(`TOTAL: ${total}`, rightX, finalY);
+      doc.text(`DISCOUNT: ${discount}`, rightX, finalY + 16);
+      doc.text(`BALANCE: ${balance}`, rightX, finalY + 32);
+      doc.text(`GRAND TOTAL: ${grandTotal}`, rightX, finalY + 48);
+
+      // Footer
+      doc.setFontSize(10);
+      doc.text(
+        "Thank you for Purchasing!",
+        40,
+        (doc.internal.pageSize as any).height - 40
+      );
+
+      const filename = `invoice_${new Date().toISOString().slice(0, 10)}.pdf`;
+      doc.save(filename);
+    } catch (err) {
+      console.error("Error generating PDF:", err);
+      alert("Failed to generate PDF");
+    } finally {
+      setIsGeneratingPdf(false);
+    }
   };
 
   return (
@@ -256,11 +374,13 @@ const QuotationTable: React.FC<{ onSaveSuccess?: () => void }> = ({
         >
           Save
         </button>
+
         <button
-          onClick={handlePrint}
-          className="mt-4 bg-blue-600 px-4 py-2 rounded text-white hover:cursor-pointer"
+          onClick={handleDownloadPDF}
+          disabled={isGeneratingPdf}
+          className="mt-4 bg-green-600 px-4 py-2 rounded text-white hover:cursor-pointer"
         >
-          Print
+          {isGeneratingPdf ? "Generating..." : "Download PDF"}
         </button>
       </span>
     </>
