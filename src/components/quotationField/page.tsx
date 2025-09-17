@@ -31,12 +31,17 @@ const QuotationTable: React.FC<{ onSaveSuccess?: () => void }> = ({
   const total = rows.reduce((acc, row) => acc + row.amount, 0);
   const grandTotal = total - discount;
   const balance = grandTotal - received;
-
   const saveQuotation = async () => {
     const validRows = rows.filter((r) => r.item && r.qty && r.rate);
 
     if (validRows.length === 0) {
       alert("Please add at least one item before saving.");
+      return;
+    }
+
+    // ✅ Validation for received
+    if (!received || received <= 0) {
+      alert("Please enter a valid 'Received' amount.");
       return;
     }
 
@@ -186,7 +191,6 @@ const QuotationTable: React.FC<{ onSaveSuccess?: () => void }> = ({
                   type="number"
                   min={0}
                   value={received}
-                  required
                   onChange={(e) => setReceived(Number(e.target.value) || 0)}
                   className="bg-transparent text-center w-full outline-none"
                 />
