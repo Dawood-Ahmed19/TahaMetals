@@ -99,12 +99,68 @@ export default function ItemCard({ initialData }: ItemCardProps) {
 
   const isPillars = formData.itemType === "Pillars";
 
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+
+  //   if (
+  //     !formData.itemType ||
+  //     !formData.pipeType ||
+  //     !formData.itemSize ||
+  //     !formData.stock ||
+  //     !formData.price ||
+  //     (isPillars ? !formData.gote : !formData.guage)
+  //   ) {
+  //     alert("Please fill all required fields before submitting.");
+  //     return;
+  //   }
+
+  //   const newItem = {
+  //     name: formData.itemName,
+  //     type: formData.itemType,
+  //     pipeType: formData.pipeType,
+  //     size: formData.itemSize,
+  //     guage: formData.guage,
+  //     gote: formData.gote,
+  //     weight: Number(formData.weight),
+  //     price: Number(formData.price),
+  //     quantity: Number(formData.stock),
+  //     height: formData.height,
+  //     date: new Date().toISOString(),
+  //   };
+
+  //   setIsLoading(true);
+
+  //   try {
+  //     const res = await fetch("/api/items", {
+  //       method: initialData ? "PUT" : "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(newItem),
+  //     });
+
+  //     if (!res.ok) throw new Error("Failed to save item");
+
+  //     alert("Item saved successfully ✅");
+  //     router.push("/Inventory");
+  //   } catch (err) {
+  //     console.error("Error saving item:", err);
+  //     alert("Could not save item. Please try again.");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const isPipe = formData.itemType === "Pipe";
+    const isPillars = formData.itemType === "Pillars";
+    const isHardware = formData.itemType === "Hardware";
+
     if (
       !formData.itemType ||
-      !formData.pipeType ||
+      (isPipe && !formData.pipeType) ||
+      (isPillars && !formData.pipeType) ||
+      (isHardware && !formData.itemName) ||
       !formData.itemSize ||
       !formData.stock ||
       !formData.price ||
