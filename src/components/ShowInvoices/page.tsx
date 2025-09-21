@@ -369,7 +369,6 @@ const ShowInvoices = () => {
     setNewPayment({ amount: 0, date: "" });
   };
 
-  // ✅ filter quotations by search term
   const filteredQuotations = quotations.filter((q) =>
     q.quotationId.toLowerCase().includes(searchTerm.toLowerCase())
   );

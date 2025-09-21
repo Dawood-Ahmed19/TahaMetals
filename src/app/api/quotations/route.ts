@@ -15,7 +15,7 @@ interface Quotation {
   total: number;
   grandTotal: number;
   payments: Payment[];
-  amount: number; // duplicate of grandTotal for compatibility
+  amount: number;
   date: string;
   totalReceived?: number;
   balance?: number;
@@ -25,11 +25,9 @@ export async function POST(req: Request) {
   try {
     const { items, discount, total, grandTotal, payments } = await req.json();
 
-    // --- Validate Inventory Before Insert --- //
     for (const soldItem of items) {
       const { item, qty } = soldItem;
 
-      // IMPORTANT ⚡ item must match inventory field (e.g. "name")
       const inventoryItem: any = await inventoryDb.findOne({ name: item });
 
       if (!inventoryItem) {
@@ -50,9 +48,8 @@ export async function POST(req: Request) {
       }
     }
 
-    // --- Generate Quotation --- //
     const count = await quotationDb.count({});
-    const quotationId = `QTN-${String(count + 1).padStart(4, "0")}`;
+    const quotationId = `INV-${String(count + 1).padStart(4, "0")}`;
 
     const safePayments: Payment[] = Array.isArray(payments) ? payments : [];
 
@@ -67,14 +64,12 @@ export async function POST(req: Request) {
       date: new Date().toISOString(),
     });
 
-    // --- Update Inventory Stock --- //
     for (const soldItem of items) {
       const { item, qty } = soldItem;
 
       const inventoryItem: any = await inventoryDb.findOne({ name: item });
 
       if (inventoryItem) {
-        // atomic decrement
         const newQty = (inventoryItem.quantity || 0) - Number(qty);
 
         await inventoryDb.update(
@@ -84,7 +79,6 @@ export async function POST(req: Request) {
       }
     }
 
-    // --- Normalize Before Returning --- //
     const totalReceived = safePayments.reduce((s, p) => s + p.amount, 0);
     const balance = grandTotal - totalReceived;
 
@@ -115,7 +109,6 @@ export async function GET() {
 
     const count = await quotationDb.count({});
 
-    // Normalize into our strict Quotation type
     const quotations: Quotation[] = rawDocs.map((q: any) => {
       const payments: Payment[] = Array.isArray(q.payments)
         ? q.payments

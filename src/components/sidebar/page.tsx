@@ -65,7 +65,9 @@ export default function Sidebar() {
       </div>
 
       {/* Footer */}
-      <div className="text-white text-xs">© 2025 QSMITH</div>
+      <div className="text-white text-xs">
+        © {new Date().getFullYear()} TahaMetals
+      </div>
     </div>
   );
 }
