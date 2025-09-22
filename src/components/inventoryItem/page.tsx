@@ -15,6 +15,7 @@ interface InventoryItemsProps {
   weight: number;
   quantity: number;
   price: number;
+  unitPrice: number;
   date: string;
   onDelete: (id: string) => void;
 }
@@ -29,6 +30,7 @@ export default function InventoryItem({
   weight,
   quantity,
   price,
+  unitPrice,
   date,
   onDelete,
 }: InventoryItemsProps) {
@@ -56,7 +58,8 @@ export default function InventoryItem({
           quantity
         )}
       </p>
-      <p>{price}</p>
+      <p>{price} PKR</p>
+      <p>{unitPrice} PKR</p>
       <div className="flex gap-2">
         <button
           onClick={handleEditItem}
@@ -68,7 +71,7 @@ export default function InventoryItem({
           <FontAwesomeIcon icon={faPen} />
         </button>
         <button
-          type="button" // ✅ prevent unintended form submit
+          type="button"
           onClick={() => {
             console.log("Delete clicked:", _id);
             onDelete(_id);

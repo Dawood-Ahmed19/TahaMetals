@@ -86,14 +86,27 @@ export default function InventoryCard() {
           <p>Size</p>
           <p>Weight (KG)</p>
           <p>Quantity Available</p>
+          <p>Price Per KG (PKR)</p>
           <p>Price Per unit (PKR)</p>
           <p>Actions</p>
           <p>Date</p>
         </span>
 
-        {filteredItems.map((item) => (
-          <InventoryItem key={item._id} {...item} onDelete={handleDelete} />
-        ))}
+        {filteredItems.map((item) => {
+          const unitPrice =
+            item.quantity > 0
+              ? ((item.weight / item.quantity) * item.price).toFixed(2)
+              : "0";
+
+          return (
+            <InventoryItem
+              key={item._id}
+              {...item}
+              unitPrice={Number(unitPrice)}
+              onDelete={handleDelete}
+            />
+          );
+        })}
       </span>
     </div>
   );
