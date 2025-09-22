@@ -62,64 +62,7 @@ const QuotationTable: React.FC<{ onSaveSuccess?: () => void }> = ({
   const grandTotal = total - discount;
   const balance = grandTotal - received;
 
-  // const saveQuotation = async () => {
-  //   const validRows = rows.filter((r) => r.item && r.qty && r.rate);
-
-  //   if (validRows.length === 0) {
-  //     alert("Please add at least one item before saving.");
-  //     return;
-  //   }
-
-  //   if (isNaN(received) || received < 0) {
-  //     alert("❌ Please enter a valid received amount (0 if unpaid).");
-  //     return;
-  //   }
-
-  //   try {
-  //     const res = await fetch("/api/quotations", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({
-  //         items: validRows.map((r) => ({
-  //           item: r.item,
-  //           qty: Number(r.qty),
-  //           weight: Number(r.weight),
-  //           rate: Number(r.rate),
-  //         })),
-  //         discount,
-  //         total,
-  //         grandTotal,
-  //         payments:
-  //           received > 0
-  //             ? [{ amount: received, date: new Date().toISOString() }]
-  //             : [],
-  //       }),
-  //     });
-
-  //     const data = await res.json();
-
-  //     if (!res.ok || !data.success) {
-  //       throw new Error(data?.error || "Failed to save quotation");
-  //     }
-
-  //     // Set the Quotation ID from backend response
-  //     setQuotationId(data.quotation?.quotationId || "");
-
-  //     alert("✅ Quotation saved and inventory updated!");
-
-  //     if (onSaveSuccess) {
-  //       onSaveSuccess();
-  //     } else {
-  //       // Don't reload, let user download PDF with correct ID
-  //       // window.location.reload();
-  //     }
-  //   } catch (err: any) {
-  //     console.error("Error in saveQuotation:", err.message);
-  //     alert("❌ Error saving quotation: " + err.message);
-  //   }
-  // };
-
-  // ========== New save Quotation ==============
+  // ========== save Quotation ==============
 
   const saveQuotation = async () => {
     const validRows = rows.filter((r) => r.item && r.qty && r.rate);
@@ -167,81 +110,6 @@ const QuotationTable: React.FC<{ onSaveSuccess?: () => void }> = ({
     }
   };
   // =================== HandleChange Function ===================
-
-  // const handleChange = (
-  //   index: number,
-  //   field: keyof QuotationRow,
-  //   value: any
-  // ) => {
-  //   const newRows = [...rows];
-  //   let numValue = Number(value);
-  //   if (isNaN(numValue) || numValue < 0) numValue = 0;
-
-  //   if (field === "item") {
-  //     const selected = inventoryItems.find((inv) => inv.name === value);
-
-  //     if (selected) {
-  //       // Compute single piece weight safely
-  //       const singlePieceWeight =
-  //         selected.quantity > 0 ? selected.weight / selected.quantity : 0;
-
-  //       // ✅ Compute single piece rate (unit price) from DB values
-  //       const unitPrice = singlePieceWeight * selected.price;
-
-  //       // Default quantity is 1
-  //       const qty = 1;
-  //       const weight = qty * singlePieceWeight;
-  //       const rate = qty * unitPrice;
-  //       const amount = rate;
-
-  //       newRows[index] = {
-  //         ...newRows[index],
-  //         item: value,
-  //         qty,
-  //         weight,
-  //         rate,
-  //         amount,
-  //       };
-  //     } else {
-  //       newRows[index] = { ...newRows[index], item: value };
-  //     }
-  //   } else if (field === "qty") {
-  //     newRows[index] = { ...newRows[index], qty: numValue };
-
-  //     const selected = inventoryItems.find(
-  //       (inv) => inv.name === newRows[index].item
-  //     );
-
-  //     if (selected && numValue > 0) {
-  //       const singlePieceWeight =
-  //         selected.quantity > 0 ? selected.weight / selected.quantity : 0;
-  //       const unitPrice = singlePieceWeight * selected.price;
-
-  //       const weight = numValue * singlePieceWeight;
-  //       const rate = numValue * unitPrice; // total for all pieces
-  //       const amount = rate;
-
-  //       newRows[index].weight = weight;
-  //       newRows[index].rate = rate;
-  //       newRows[index].amount = amount;
-  //     } else {
-  //       newRows[index].weight = 0;
-  //       newRows[index].rate = 0;
-  //       newRows[index].amount = 0;
-  //     }
-  //   } else {
-  //     // Handles direct edits on weight/rate if allowed
-  //     newRows[index] = { ...newRows[index], [field]: numValue };
-
-  //     const qty = Number(newRows[index].qty) || 0;
-  //     const rate = Number(newRows[index].rate) || 0;
-  //     newRows[index].amount = qty * rate;
-  //   }
-
-  //   setRows(newRows);
-  // };
-
-  // ======================== TEST WITH PROFIT
 
   const handleChange = (
     index: number,
